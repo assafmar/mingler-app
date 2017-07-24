@@ -1,51 +1,61 @@
 <template>
+  <transition name="fade">
   <!--<div v-if="user">-->
   <div v-if="user" class = "main">
     <div id="browse-div" class="browse flex-center" ref="playground">
-
+<!--v-if="drageVals.showUser && nextUser"-->
+<!--{{nextUser}}-->
        <!--//==================================================-->
-          <div v-if="drageVals.showUser && nextUser"  :user='nextUser' class="img-frame next-user"  >
+          <div  class="img-frame next-user"  >
                 <div class="img-container">
-                  <img v-if="nextUser.photos" 
+                  <img v-if="nextUser && nextUser.photos[0]" 
                         :src="nextUser.photos && nextUser.photos[0]">
                 </div>
-                <div class="user-details">
-                      <h4 class = "photo-txt">{{ nextUser.name }}, {{ nextUser.age }}</h4>
+                <div class="user-details" >
+                      <h4 class = "photo-txt">{{ nextUser.name }}, {{ newDate - nextUser.birth }}</h4>
                     <div class="description" v-show="expand">
                       <h4>{{ nextUser.name }}, 1{{ newDate - nextUser.birth }}nextUser</h4>
                       <p> {{nextUser.description}}
                         <div class="expand">
                           <p @click="expand = !expand">
-                            <md-icon>keyboard_arrow_down</md-icon>
+                            <!--<md-icon>keyboard_arrow_down</md-icon>-->
                           </p>
                         </div>
                     </div>
                 </div>
         </div>
        
-       <!--//==================================================-->
+       <!--//===========================================:user='currUser'=======-->
        <transition name="fade">
-        <div v-if="drageVals.showUser "  :user='currUser' class="img-frame curr-user" 
+        <div id="curr-user-frame" v-if="drageVals.showUser "   class="img-frame curr-user" 
               
               @mousemove="touchMove"  @touchmove="touchMove" 
               @mousedown="dragModeTrue" @mouseup="dragModeFalse" 
                @touchstart ="dragModeTrue" @touchend ="dragModeFalse" >
                 <div class="img-container">
-                  <!--<img v-if="users[userIdx].photos" :src="users[userIdx].photos && users[userIdx].photos[userIdx]">-->
-                  <img  class="presented-photo" :src="currUser.photos && currUser.photos[0]">
+                  <transition name="fade">
+                  <div v-if="drageVals.msg" id="v-like-tag" :class="vClass()">{{drageVals.msg}} </div>
+                    </transition>
+                    <img v-if="currUser.photos"  :src="currUser.photos && currUser.photos[0]">
+                    <p @click="expand = !expand">
+                              <!--<md-icon>keyboard_arrow_down</md-icon>-->
+                    </p>
                 </div>
-                <div class="user-details">
-                      <h4 class = "photo-txt">{{ currUser.name }}, {{ currUser.age }}</h4>
-                    <div class="description" v-show="expand">
-                      <h4>{{ currUser.name }}, {{ newDate - currUser.birth }}</h4>
-                      <!--<p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio itaque ea, nostrum odio. Dolores, sed accusantium quasi non, voluptas eius illo quas, saepe voluptate pariatur in deleniti minus sint. Excepturi. </p>-->
-                      <p> {{currUser.description}}
-                        <div class="expand">
-                          <p @click="expand = !expand">
-                            <md-icon>keyboard_arrow_down</md-icon>
-                          </p>
-                        </div>
-                    </div>
+                
+                <div class="user-details" @click="expand = !expand">
+                <!--<div class="user-details" @click.stop="showUserDetails">-->
+                      <h4 class = "photo-txt">{{ currUser.name }}, {{ newDate - currUser.birth }}</h4>
+                  <!--<div class="expand" @click.stop="expand = !expand">-->
+                  
+                  <div class="expand" >
+                  <transition name="slide-fade">
+                          <div class="description" v-show="expand">
+                            <h4>{{ user.name }}, {{ newDate - user.birth }}</h4>
+                            <p> {{user.description}}</p>
+                          </div>
+                    </transition>
+                
+                </div>
                 </div>
         </div>
       </transition>
@@ -55,10 +65,10 @@
   
     <!--<section class="actions" v-if="!newMatch">-->
     <section class="actions">
-      <a href="#" @click.prevent="userDislike">
+      <a href="#" @click.prevent="launchLikeAction($event, 'left')">
         <md-icon class="material-icons md-size-2x dislike">highlight_off</md-icon>
       </a>
-      <a @click.prevent="userLike">
+      <a @click.prevent="launchLikeAction($event, 'right')">
         <md-icon class="material-icons md-size-2x like heart">favorite</md-icon>
       </a>
     </section>
@@ -67,8 +77,8 @@
           <div v-if="newMatch" transition="fade"  class="match-popup">
             <h1>Congratulations! </h1>
             <h1> You have a NEW MATCH! </h1>
-            <img class="popup-image" :src="this.newMatch.photos[0]"></img>
-            <h2>You and {{this.newMatch.name}} like each other</h2>
+            <img v-if="newMatch.photos" class="popup-image" :src="this.newMatch.photos[0]"></img>
+            <span>You and {{this.newMatch.name}} like each other</span>
             <div class="popup-buttons">
               <el-button class="button" @click="closePopup">CLOSE</el-button>
               <el-button class="button" @click="viewMatches">View Matches</el-button>
@@ -78,6 +88,8 @@
 
 
   </div>
+  </transition>
+
 </template>
 
 <script>
@@ -114,22 +126,13 @@ export default {
         initialMouseX: null,
         startX:null,
         startY:null,
-        
+        msg:'',
         totalXDist : 0,
         parentEl:null,
         frameEl :null,
-        parentWidth:0,
+        parentWidth:null,
         diff:50,
-        // xLeft:0,
-        // oldX:0,
-        // xDiff:0,
-        // xRight:0,
-        // xMid:0,
         xPercent:0,
-        // xDistFromInitial:0,
-        // xRightParent:0,
-        // distToLeft: 0,
-        // distToRight: 0,
         showUser : true,
         isDraged:false,
         opacity:1,
@@ -138,19 +141,34 @@ export default {
     }
   },
   mounted() {
+    // this.users = this.$store.getters.fetchUsersBrowsed;
+    // this.drageVals.frameEl =  document.getElementById("curr-user-frame");
+    // this.drageVals.parentEl =  document.getElementById("browse-div");
 
+    // this.pushUsers();
+    var that = this;
+      setTimeout(function() {
+        that.drageVals.frameEl =  document.getElementById("curr-user-frame");
+        that.drageVals.parentEl =  document.getElementById("browse-div");
+        that.initEl()
+        that.pushUsers();
+      }, 50);
   },
   created() {
-    this.$store.dispatch({ type: GET_BROWSED });
+    console.log(this.nextUser, 'sdfsdfsdfsddsfsf')
+    this.$store.dispatch({ type: GET_BROWSED })
+    .then(x => console.log(x));
     console.log('browse: created - after GET_BROWSED');
     this.$router.push('Browse');
+        this.pushUsers();
     this.users = this.$store.getters.fetchUsersBrowsed;
-    this.pushUsers();
+    
   },
   computed: {
     users() {
       var users11 = this.$store.getters.fetchUsersBrowsed;
       console.log('browse: computed - users:', users11);
+
       return users11;
     },
     user() {
@@ -163,6 +181,19 @@ export default {
   },
 
   methods: {
+    showUserDetails(e){
+       e.preventDefault();
+        // this.expand = !this.expand;
+        console.log('rrrrrrrrrrrrrrrrrrrrrrrr')
+    },
+    vClass() { 
+      var txt = (Math.abs(this.drageVals.xPercent ==0 ))? '': 'v-like-action'
+      var str =  (this.drageVals.xPercent >0) ?  'v-like-action v-like' :  'v-like-action v-dislike';
+        console.log('vClass',str )
+      return str
+      // return (this.drageVals.xPercent >0) ?  'v-like-action v-like' : 'v-like-action v-dislike';
+    },
+
     pushUsers(){
         console.log('pushUsers.users',this.users )
       this.userIdx  = (this.userIdx === this.users.length - 1) ? 0 : this.userIdx + 1;
@@ -172,11 +203,11 @@ export default {
     dragModeTrue(e){
         console.log('dragModeTrue.drageVals.dragStatus1', this.drageVals.dragStatus )
        e.preventDefault();
-        // this.calculateCardPos(e);
+            this.initEl()
+            
             if (this.drageVals.dragStatus ==='init'){     //only on first round  
                 console.log('dragModeTrue.1.5.e.path[2].offsetTop',e.path[2].offsetTop )
-                this.drageVals.startX = e.path[2].offsetLeft;
-                // this.startY = e.path[2].offsetTop;
+                this.drageVals.startX = this.drageVals.frameEl.offsetLeft;
             } 
                 if(e.clientX){                //big screen
                     this.initialMouseX = e.clientX ;
@@ -185,20 +216,15 @@ export default {
                     this.initialMouseX = e.changedTouches[0].clientX;
                     this.initialMouseY = e.changedTouches[0].clientY;
             }
-            // this.drageVals.isDraged = true;frameEl
-            this.drageVals.frameEl =  document.getElementById("browse-div");
-            this.drageVals.parentEl =  document.getElementById("browse-div");
             this.drageVals.parentWidth =  this.drageVals.parentEl.getBoundingClientRect().width;
-
-            this.drageVals.dragStatus ='clikced';
+            this.drageVals.dragStatus ='clicked';
           console.log('dragModeTrue.drageVals.dragStatus2', this.drageVals.dragStatus )
   },
     dragModeFalse(e){
-        console.log('dragModeFalse.e.path[2].offsetLeft.left',  e.path[2].style.top )
+        console.log('dragModeFalse.e.path[2].offsetLeft.left',  this.drageVals.frameEl.style.top )
             this.isDraged = false;
             this.showUser = false;
-            if(this.drageVals.dragStatus ='clicked'){
-              // e.path[2].classList.add("fly-out")
+            if(this.drageVals.dragStatus ==='clicked'){
                 this.slideHome(e);
 
             }
@@ -208,85 +234,116 @@ export default {
     },
     //===================================
     slideHome(e){
-          console.log( '------------goHome.216' );
-            e.path[2].classList.add("slide-home")
-            e.path[2].style.left =this.drageVals.startX +'px';
-            e.path[2].style.opacity  =1;
-            e.path[2].style.transform  =`rotate(0deg)`;
+          console.log( '------------slideHome.211' );
+            var t= 9;
+            var vals = this.drageVals;
+            // if(this.drageVals.dragStatus=== 'clicked') return;
+            
+            vals.frameEl.classList.add("slide-home")
+            vals.frameEl.style.left =this.drageVals.startX +'px';
+            vals.frameEl.style.opacity  =1;
+            vals.frameEl.style.transform  =`rotate(0deg)`;
             this.drageVals.dragStatus ='unclicked';
+            this.drageVals.msg ='';
+            this.drageVals.xPercent =0;
+            var that = this;
           setTimeout(function() {
-            e.path[2].classList.remove("slide-home")
+            that.drageVals.frameEl.classList.remove("slide-home")
           }, 300);
             
 
     },
+    initEl(){
+          this.drageVals.frameEl =  document.getElementById("curr-user-frame");
+          console.log('initEl',document.getElementById("curr-user-frame"));
+          this.drageVals.parentEl =  document.getElementById("browse-div");
+          if( this.drageVals.frameEl && !this.drageVals.startX){
+              this.drageVals.startX = this.drageVals.frameEl.offsetLeft;
+              this.drageVals.parentWidth = this.drageVals.parentEl.getBoundingClientRect().width;
+        }
+              console.log('88888888888888888888888888888888');
+    },
     //===================================
     goHome(e){
-          console.log( '------------goHome.216' );
-            e.path[2].classList.remove("fly-out")
-            e.path[2].style.left =this.drageVals.startX +'px';
+          console.log( '------------goHome.224', this.drageVals.frameEl );
+            if (!this.drageVals.frameEl)  this.initEl()
+
+            this.drageVals.frameEl.classList.remove("fly-out")
+            // e.path[2].classList.remove("slide-home")
+            this.drageVals.frameEl.style.left =this.drageVals.startX +'px';
             // e.path[2].style.top =this.drageVals.initialTop +'px';
-            e.path[2].style.opacity  =1;
-            e.path[2].style.transform  =`rotate(0deg)`;
-            this.drageVals.dragStatus ='unclicked'
+            this.drageVals.frameEl.style.opacity  =1;
+            this.drageVals.frameEl.style.transform  =`rotate(0deg)`;
+            var el = document.getElementById("v-like-tag");//v-like
+            if(el){
+                // el.classList.remove("v-like");
+                // el.classList.remove("v-dislike");
+            }
+            this.drageVals.dragStatus ='unclicked';
+            this.drageVals.msg ='';
     },
     //===================================
     flyOut(e,direction){
-          // console.log( '------------flyOut.');
-           var str =this.drageVals.parentWidth + 400 +'px'
+          // console.log( '------------flyOut.',e.path[2],this.drageVals.frameEl);
+           
+           
+           if(!this.drageVals.parentWidth) this.initEl()
+           this.drageVals.msg = '';
+           var leftStr =this.drageVals.parentWidth +100 +'px'
+           var  rotateStr= 30; 
             if  (direction ==='left'){
-              str = '-400px';
+              leftStr = -this.drageVals.parentWidth+'px';
+              rotateStr = -30;
             }
-          // console.log( '------------flyOut.str', str);
+          var el = document.getElementById("curr-user-frame");
+          el.classList.add("fly-out")
+          var str = el.offsetLeft ;
+          el.style.left =str + 'px';
+
+          el.style.left =leftStr;
+          el.style.transform  =`rotate(${rotateStr}deg)`;
           var ev = e
           var that = this;
-          e.path[2].classList.add("fly-out")
-          e.path[2].style.left =str;
           setTimeout(function() {
                   console.log('flyOut.setTimeout' );
-                     ev.path[2].classList.remove("fly-out")
+                     el.classList.remove("fly-out")
                     that.goHome(e);
                     that.pushUsers();
-
-          }, 400);
-
+          }, 500);
 
     },
     //===================================
     touchMove(e){
-          // console.log('touchMove.drageVals.dragStatus',this.drageVals.dragStatus );
-          if (this.drageVals.dragStatus ==='clikced'){
-              // this.calculateCardPos(e);
+          if (this.drageVals.dragStatus ==='clicked'){
+              console.log('touchMove.e' , e);
               this.followMouse(e);
           }
-
-          // console.log('touchMove.e.target', e.target.x , e.target.clientWidth );
-          // console.log(this.users[0] );
     },
     //===================================
     followMouse(e){
-          // console.log('followMouse.e' , e);
+          console.log('followMouse.e' , e);
+        
         var vals = this.drageVals;
         var el = e.target;
-      // vals.status = 'followMouse';
+        vals.status = 'followMouse';
             if(e.clientX){
-                    var dx = e.clientX - this.initialMouseX;
+                    var dx = (e.clientX - this.initialMouseX)/1.3;
             }else{
-                    var dx = e.changedTouches[0].clientX - this.initialMouseX;
-                    // var dy = e.changedTouches[0].clientY - this.initialMouseY;
-                    // e.path[2].style.top = this.startY + dy + 'px';
+                    var dx = (e.changedTouches[0].clientX - this.initialMouseX)/1.3;
             } 
-            e.path[2].style.left = this.drageVals.startX + dx + 'px';
+            vals.frameEl.style.left = this.drageVals.startX + dx + 'px';
 
-          // vals.xPercent = (vals.xLeft - vals.initialLeft)/ (vals.initialLeft+  vals.diff)
           vals.xPercent = (dx)/(this.initialMouseX+  vals.diff);
-
-
-          //  vals.opacity = 1-(Math.abs(vals.xPercent)/2)
+          vals.opacity = (4* Math.abs(vals.xPercent))
+          var el = document.getElementsByClassName("v-like-action")[0];
+          if(el) el.style.opacity  =vals.opacity;
+          console.log('vals.opacity :',vals.opacity)
+            vals.msg = (vals.xPercent >0)? 'Like':'Dislike';
           vals.rotate =70 * vals.xPercent
-          e.path[2].style.transform  =`rotate(${  vals.rotate}deg)`;
+          vals.frameEl.style.transform  =`rotate(${  vals.rotate}deg)`;
           // e.path[2].style.opacity  =vals.opacity;
-                
+        
+        console.log('followMouse.msg', vals.msg, vals.xPercent );
           if(Math.abs(vals.xPercent) >0.3){
               if(vals.xPercent >0){
                   this.flyOut(e,'right');
@@ -298,7 +355,6 @@ export default {
               }
               var that = this;
           }
-
     },
     //===================================
 
@@ -313,8 +369,16 @@ export default {
       console.log('Browse: MOVE to edit')
       this.$router.push('Edit')
     },
+    launchLikeAction(e,direction){
+      this.initEl()
+  // dragModeTrue(e)
+      // this.dragModeTrue(e)
+      this.flyOut(e,direction);
+      this.drageVals.dragStatus = 'clicked';
+      (direction === 'left')? this.userDislike(e):this.userLike(e);
+    },
     userDislike(e) {
-      if(this.drageVals.dragStatus != 'clikced') return;
+      if(this.drageVals.dragStatus != 'clicked') return;
       console.log('Browse: before DISLIKE! id:', this.userIdx, this.users.length)
       const msg = { id1: this.$store.state.user.currUser.id, id2: this.user.id, bul: false }
       this.$store.dispatch({ type: LIKE, data: msg })
@@ -326,19 +390,21 @@ export default {
     userLike(e) {
       this.newMatchFlag = true;
       
-      if(this.drageVals.dragStatus != 'clikced') return;
+      if(this.drageVals.dragStatus != 'clicked') return;
       console.log('Browse: before LIKE! id:', this.userIdx, this.users.length)
       const msg = { id1: this.$store.state.user.currUser.id, id2: this.user.id, bul: true }
       this.$store.dispatch({ type: LIKE, data: msg })
       console.log('Browse:  LIKE! id:', this.userIdx, this.users.length)
+      
       var el = document.getElementsByClassName("fly-out")[0];
       console.log('Browse:  LIKE.el:', el)
       this.drageVals.dragStatus = 'afterLikeEvent';
   },
     viewMatches() {
-      console.log('Browse: clicked on "VEIW MATCHES"')
+      console.log('Browse: clicked on "VIEW MATCHES"')
       this.newMatchFlag = false;
-      this.moveToMatches();
+      // var that  = this;
+          this.moveToMatches();
     },
     closePopup() {
       console.log('Browse: clicked on "CLOSE POPUP"')
@@ -347,30 +413,31 @@ export default {
 
   }
 }
-      // console.log('Browse: before LIKE! id:', this.userIdx, this.users.length)
-      // const msg = { id1: this.$store.state.user.currUser.id, id2: this.user.id, bul: true }
-      // this.drageVals.isDraged =false;
-      // this.drageVals.showUser =false;
-      // var that = this;
-      // // e.path[2].classList.add("fly-out")
-      // e.path[2].style.left ='-210px';
-
-      
-      // setTimeout(function() {
-      //       that.drageVals.showUser =true;
-      //       that.userIdx  = (that.userIdx === that.users.length - 1) ? 0 : that.userIdx + 1;
-      //       that.nextUser = (that.nextUser === that.users.length - 1) ? 0 : that.userIdx + 1;
-      //       // e.path[2].classList.remove("fly-out")
-      // },1);
   
 
 </script>
 
 <style scoped lang="scss">
-// .presented-photo{
-//   min-height:100%;
-//   width: auto;
-// }
+
+.v-like-action{
+      position: absolute;
+      top:20px;
+      z-index: 5;
+      font-size:2em;
+      padding:0.2em;
+      border-radius: 5px;
+}
+.v-like{
+  color:green;
+  border:2px solid green;
+  left:20px;
+}
+.v-dislike{
+  color:red;
+  border:2px solid red;
+  right:20px;
+
+}
 
 .fly-out{
   transition: .5s all;
@@ -386,7 +453,7 @@ export default {
     overflow: hidden;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - 150px);
+    height: 70vh;
 }
 .flex-center{
     display: flex;
@@ -399,27 +466,32 @@ export default {
   overflow: hidden;
 }
 .user-details {
-    position: relative;
+    position: absolute;
     white-space: nowrap;
-    overflow: hidden;
+    width:100%;
+    // overflow: hidden;
     text-overflow: clip ellipsis;
-    z-index: 5;
+    z-index: 0;
     background-color: gray;
+    height:6em;
+    cursor: pointer;
   }
 
 .actions {
   top:100px;
   padding: {
     top: 0.5em;
-    left: 2em;
     right: 2em;
     bottom: 1em;
+    left:2em;
   }
   display: flex;
   justify-content: space-between;
   flex-wrap:wrap;
   background: lightgrey;
   .like {
+        left: 2em;
+
     color: red;
     opacity: 0.9;
     cursor: pointer;
@@ -428,6 +500,7 @@ export default {
     }
   }
   .dislike {
+    right: 2em;
     color: rgba(124, 1, 87, 1);
     opacity: 0.8;
     cursor: pointer;
@@ -438,8 +511,11 @@ export default {
 }
 .img-frame{
     // transition: all 0.2s;
-    background: lightgrey;
+    // background: lightgrey;
     position: absolute;
+    top:10%;
+    width: 90%;
+    height: 70%;
     // margin:auto;
 }
  .next-user{
@@ -449,30 +525,33 @@ export default {
 }
 .img-container {
   margin:auto;
-  width: 18em;
-  height: 20em;
+  // width: 20em;
+  height: 100%;
+  width:100%;
   overflow: hidden;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
   position: relative;
   display:flex;
   flex-direction: column;
-  // justify-content: center; //
-  // align-items: center;
+  justify-content: center;
+  align-items: center;
+  margin:auto;
 .photo-txt{
   font-size: 1em;
   color:red;
 }
   img {
     position: absolute;
-   margin: auto;
+    margin: auto;
     min-height: 100%;
-  //  min-width: 100%;
-  width:auto;
-    left: -100%;
-    right: -100%;
-    top: -100%;
-    bottom: -100%;
+    // min-width: 100%;
+    width:100%;
+    overflow-y: hidden;
+  //  left: -100%;
+ //   right: -100%;
+ //   top: -100%;
+ //   bottom: -100%;
   }
 }
 
@@ -501,6 +580,8 @@ export default {
 
 .popup-buttons {
   width: 100%;
+  // position: absolute;
+  // bottom:10vh;
   .button {
     font-family: 'Kurale', Helvetica, Arial, sans-serif;
     text-transform: uppercase;
@@ -514,20 +595,42 @@ export default {
   display: block;
   width: 100%;
   bottom: 0;
+  height:7em;
+  z-index: 0;
 }
 
 .expand {
   cursor: pointer;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .01s
+.fade-enter-active{
+// .fade-enter-active{
+  transition: opacity .5s
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   opacity: 0
 }
 .el-hide{
   visibility:hidden;
+}
+
+.slide-fade-enter-active {
+  transition: all .5s ease;
+}
+.slide-fade-leave-active {
+  // transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  transition: all .8s ;
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateY(-6em);  
+  // height:0;
+  opacity: 0;
+  overflow:hidden;
+}
+
+* {
+  // outline: 1px solid red;
 }
 </style>
  

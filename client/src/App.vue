@@ -62,7 +62,7 @@ export default {
 body {
  // background: #C02425; 
   background: #C02425; 
-  background: linear-gradient(to bottom, #eb5757, #000000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to bottom, #eb5757, #e1b496); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   margin: 0;
   height:100%;
   overflow-y: hidden;

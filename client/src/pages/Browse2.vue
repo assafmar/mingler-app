@@ -1,72 +1,65 @@
 <template>
+  <transition name="fade">
   <!--<div v-if="user">-->
   <div v-if="user" class = "main">
     <div id="browse-div" class="browse flex-center" ref="playground">
 <!--v-if="drageVals.showUser && nextUser"-->
 <!--{{nextUser}}-->
        <!--//==================================================-->
-          <div   :user='nextUser' class="img-frame next-user"  >
+          <div  class="img-frame next-user"  >
                 <div class="img-container">
-                  <img v-if="nextUser.photos" 
+                  <img v-if="nextUser && nextUser.photos[0]" 
                         :src="nextUser.photos && nextUser.photos[0]">
                 </div>
-                <div class="user-details">
-                      <h4 class = "photo-txt">{{ nextUser.name }}, {{ nextUser.age }}</h4>
-                    <div class="description" v-show="expand">
+                <div class="user-details" >
+                      <h4 class = "photo-txt">{{ nextUser.name }}, {{ newDate - nextUser.birth }}</h4>
+                </div>
+                <!--<div class="description" v-show="expand">
                       <h4>{{ nextUser.name }}, 1{{ newDate - nextUser.birth }}nextUser</h4>
                       <p> {{nextUser.description}}
                         <div class="expand">
                           <p @click="expand = !expand">
-                            <md-icon>keyboard_arrow_down</md-icon>
                           </p>
                         </div>
-                    </div>
-                </div>
+                </div>-->
+
         </div>
        
-       <!--//==================================================-->
+       <!--//===========================================:user='currUser'=======-->
        <transition name="fade">
-        <div id="curr-user-frame" v-if="drageVals.showUser "  :user='currUser' class="img-frame curr-user" 
+        <div id="curr-user-frame" v-if="drageVals.showUser "   class="img-frame curr-user" >
               
+               
+                <div class="img-container"
               @mousemove="touchMove"  @touchmove="touchMove" 
               @mousedown="dragModeTrue" @mouseup="dragModeFalse" 
-               @touchstart ="dragModeTrue" @touchend ="dragModeFalse" >
-                <div class="img-container">
+               @touchstart ="dragModeTrue" @touchend ="dragModeFalse" 
+                
+                
+                >
+                  <!--<transition name="fade">-->
                   <div v-if="drageVals.msg" id="v-like-tag" :class="vClass()">{{drageVals.msg}} </div>
-                  <img  :src="currUser.photos && currUser.photos[0]">
-                  <!--<div :class="vClass()">like </div>-->
-
+                    <!--</transition>-->
+                          <img v-if="currUser.photos"  :src="currUser.photos && currUser.photos[0]">
+                    <!--<p @click="expand = !expand">
+                              <!--<md-icon>keyboard_arrow_down</md-icon>-->
+                    </p>-->
                 </div>
-                <div class="user-details">
+                
+                <div class="user-details" @click="expand = !expand">
+                <!--<div class="user-details" @click.stop="showUserDetails">-->
                       <h4 class = "photo-txt">{{ currUser.name }}, {{ newDate - currUser.birth }}</h4>
-                    <div class="description" v-show="expand">
-                      <h4>{{ currUser.name }}, {{ currUser.birth }}</h4>
-                      <!--<p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio itaque ea, nostrum odio. Dolores, sed accusantium quasi non, voluptas eius illo quas, saepe voluptate pariatur in deleniti minus sint. Excepturi. </p>-->
-                      <!--<p> {{currUser.description}}
-                        <div class="expand">
-                          <p @click="expand = !expand">
-                            <md-icon>keyboard_arrow_down</md-icon>
-                          </p>
-                        </div>-->
-<div class="description" v-show="expand">
-             <h4>{{ user.name }}, {{ newDate - user.birth }}</h4>
-             <!--<p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio itaque ea, nostrum odio. Dolores, sed accusantium quasi non, voluptas eius illo quas, saepe voluptate pariatur in deleniti minus sint. Excepturi. </p>-->
-             <p> {{user.description}}
-               <div class="expand">
-                 <p @click="expand = !expand">
-                   <md-icon>keyboard_arrow_down</md-icon>
-                 </p>
-               </div>
-           </div>
-           <div class="expand">
-             <p @click="expand = !expand">
-               <md-icon>keyboard_arrow_up</md-icon>
-             </p>
-           </div>
-
-
-
-                    </div>
+                  <!--<div class="expand" @click.stop="expand = !expand">-->
+                </div>
+                  <div class="expand" >
+                    <transition name="slide-fade">
+                          <div class="description" v-show="expand" @click="expand = !expand">
+                                dhsbt<br>rtvhtrvsyr<br>yceywecy<br>we4tr3tq<br>34tq4t
+                                <h4>{{ user.name }}, {{ newDate - user.birth }}</h4>
+                                <p> {{user.description}}</p>                          
+                          </div>
+                    </transition>
+                
                 </div>
         </div>
       </transition>
@@ -88,8 +81,8 @@
           <div v-if="newMatch" transition="fade"  class="match-popup">
             <h1>Congratulations! </h1>
             <h1> You have a NEW MATCH! </h1>
-            <img class="popup-image" :src="this.newMatch.photos[0]"></img>
-            <h2>You and {{this.newMatch.name}} like each other</h2>
+            <img v-if="newMatch.photos" class="popup-image" :src="this.newMatch.photos[0]"></img>
+            <span>You and {{this.newMatch.name}} like each other</span>
             <div class="popup-buttons">
               <el-button class="button" @click="closePopup">CLOSE</el-button>
               <el-button class="button" @click="viewMatches">View Matches</el-button>
@@ -99,6 +92,8 @@
 
 
   </div>
+  </transition>
+
 </template>
 
 <script>
@@ -190,6 +185,11 @@ export default {
   },
 
   methods: {
+    showUserDetails(e){
+       e.preventDefault();
+        // this.expand = !this.expand;
+        console.log('rrrrrrrrrrrrrrrrrrrrrrrr')
+    },
     vClass() { 
       var txt = (Math.abs(this.drageVals.xPercent ==0 ))? '': 'v-like-action'
       var str =  (this.drageVals.xPercent >0) ?  'v-like-action v-like' :  'v-like-action v-dislike';
@@ -211,7 +211,7 @@ export default {
             
             if (this.drageVals.dragStatus ==='init'){     //only on first round  
                 console.log('dragModeTrue.1.5.e.path[2].offsetTop',e.path[2].offsetTop )
-                this.drageVals.startX = e.path[2].offsetLeft;
+                this.drageVals.startX = this.drageVals.frameEl.offsetLeft;
             } 
                 if(e.clientX){                //big screen
                     this.initialMouseX = e.clientX ;
@@ -221,14 +221,14 @@ export default {
                     this.initialMouseY = e.changedTouches[0].clientY;
             }
             this.drageVals.parentWidth =  this.drageVals.parentEl.getBoundingClientRect().width;
-            this.drageVals.dragStatus ='clikced';
+            this.drageVals.dragStatus ='clicked';
           console.log('dragModeTrue.drageVals.dragStatus2', this.drageVals.dragStatus )
   },
     dragModeFalse(e){
-        console.log('dragModeFalse.e.path[2].offsetLeft.left',  e.path[2].style.top )
+        console.log('dragModeFalse.e.path[2].offsetLeft.left',  this.drageVals.frameEl.style.top )
             this.isDraged = false;
             this.showUser = false;
-            if(this.drageVals.dragStatus ='clicked'){
+            if(this.drageVals.dragStatus ==='clicked'){
                 this.slideHome(e);
 
             }
@@ -239,16 +239,20 @@ export default {
     //===================================
     slideHome(e){
           console.log( '------------slideHome.211' );
-            e.path[2].classList.add("slide-home")
-            e.path[2].style.left =this.drageVals.startX +'px';
-            e.path[2].style.opacity  =1;
-            e.path[2].style.transform  =`rotate(0deg)`;
+            var t= 9;
+            var vals = this.drageVals;
+            // if(this.drageVals.dragStatus=== 'clicked') return;
+            
+            vals.frameEl.classList.add("slide-home")
+            vals.frameEl.style.left =this.drageVals.startX +'px';
+            vals.frameEl.style.opacity  =1;
+            vals.frameEl.style.transform  =`rotate(0deg)`;
             this.drageVals.dragStatus ='unclicked';
             this.drageVals.msg ='';
             this.drageVals.xPercent =0;
-
+            var that = this;
           setTimeout(function() {
-            e.path[2].classList.remove("slide-home")
+            that.drageVals.frameEl.classList.remove("slide-home")
           }, 300);
             
 
@@ -276,26 +280,30 @@ export default {
             this.drageVals.frameEl.style.transform  =`rotate(0deg)`;
             var el = document.getElementById("v-like-tag");//v-like
             if(el){
-                el.classList.remove("v-like");
-                el.classList.remove("v-dislike");
+                // el.classList.remove("v-like");
+                // el.classList.remove("v-dislike");
             }
             this.drageVals.dragStatus ='unclicked';
             this.drageVals.msg ='';
     },
     //===================================
     flyOut(e,direction){
-          console.log( '------------flyOut.',e.path[2],this.drageVals.frameEl);
-           if(!this.drageVals.parentWidth) this.initEl()
+          // console.log( '------------flyOut.',e.path[2],this.drageVals.frameEl);
            
-           var leftStr =this.drageVals.parentWidth + 400 +'px'
+           
+           if(!this.drageVals.parentWidth) this.initEl()
+           this.drageVals.msg = '';
+           var leftStr =this.drageVals.parentWidth +100 +'px'
            var  rotateStr= 30; 
             if  (direction ==='left'){
-              leftStr = '-400px';
+              leftStr = -this.drageVals.parentWidth+'px';
               rotateStr = -30;
             }
           var el = document.getElementById("curr-user-frame");
-          
           el.classList.add("fly-out")
+          var str = el.offsetLeft ;
+          el.style.left =str + 'px';
+
           el.style.left =leftStr;
           el.style.transform  =`rotate(${rotateStr}deg)`;
           var ev = e
@@ -305,41 +313,54 @@ export default {
                      el.classList.remove("fly-out")
                     that.goHome(e);
                     that.pushUsers();
-          }, 200);
+          }, 500);
 
     },
     //===================================
     touchMove(e){
-          if (this.drageVals.dragStatus ==='clikced'){
-              // this.calculateCardPos(e);
+          if (this.drageVals.dragStatus ==='clicked'){
+              console.log('touchMove.e' , e);
               this.followMouse(e);
           }
     },
     //===================================
     followMouse(e){
           console.log('followMouse.e' , e);
+        
         var vals = this.drageVals;
         var el = e.target;
-      // vals.status = 'followMouse';
+        vals.status = 'followMouse';
             if(e.clientX){
-                    var dx = (e.clientX - this.initialMouseX)/1.3;
+                    var dx = (e.clientX - this.initialMouseX);
             }else{
-                    var dx = (e.changedTouches[0].clientX - this.initialMouseX)/1.3;
+                    // var dx = (e.changedTouches[0].clientX - this.initialMouseX);
+                    var dx = (e.changedTouches[0].clientX - this.initialMouseX);
             } 
-            e.path[2].style.left = this.drageVals.startX + dx + 'px';
+            vals.frameEl.style.left = this.drageVals.startX + dx + 'px';
 
-          vals.xPercent = (dx)/(this.initialMouseX+  vals.diff);
-
-          vals.msg = (vals.xPercent >0)? 'Like':'Dislike';
+          vals.xPercent = (dx)/(this.initialMouseX);
           vals.opacity = (4* Math.abs(vals.xPercent))
           var el = document.getElementsByClassName("v-like-action")[0];
           if(el) el.style.opacity  =vals.opacity;
-          console.log('vals.opacity :',vals.opacity)
+          console.log('vals.e.changedTouches[0].clientX :',
+          vals.xPercent,
+          e.changedTouches[0].clientX ,
+          e.changedTouches[0].clientX - this.initialMouseX,
+          this.initialMouseX,
+          dx
+
+          
+          )
+            
+            
+            
+            vals.msg = (vals.xPercent >0)? 'Like':'Dislike';
           vals.rotate =70 * vals.xPercent
-          e.path[2].style.transform  =`rotate(${  vals.rotate}deg)`;
+          vals.frameEl.style.transform  =`rotate(${  vals.rotate}deg)`;
           // e.path[2].style.opacity  =vals.opacity;
-                
-          if(Math.abs(vals.xPercent) >0.3){
+        
+        console.log('followMouse.msg', vals.msg, vals.xPercent );
+          if(Math.abs(vals.xPercent) >111){
               if(vals.xPercent >0){
                   this.flyOut(e,'right');
                 console.log('======like=====');
@@ -350,7 +371,6 @@ export default {
               }
               var that = this;
           }
-
     },
     //===================================
 
@@ -367,14 +387,14 @@ export default {
     },
     launchLikeAction(e,direction){
       this.initEl()
-
+  // dragModeTrue(e)
       // this.dragModeTrue(e)
       this.flyOut(e,direction);
-      this.drageVals.dragStatus = 'clikced';
+      this.drageVals.dragStatus = 'clicked';
       (direction === 'left')? this.userDislike(e):this.userLike(e);
     },
     userDislike(e) {
-      if(this.drageVals.dragStatus != 'clikced') return;
+      if(this.drageVals.dragStatus != 'clicked') return;
       console.log('Browse: before DISLIKE! id:', this.userIdx, this.users.length)
       const msg = { id1: this.$store.state.user.currUser.id, id2: this.user.id, bul: false }
       this.$store.dispatch({ type: LIKE, data: msg })
@@ -386,19 +406,21 @@ export default {
     userLike(e) {
       this.newMatchFlag = true;
       
-      if(this.drageVals.dragStatus != 'clikced') return;
+      if(this.drageVals.dragStatus != 'clicked') return;
       console.log('Browse: before LIKE! id:', this.userIdx, this.users.length)
       const msg = { id1: this.$store.state.user.currUser.id, id2: this.user.id, bul: true }
       this.$store.dispatch({ type: LIKE, data: msg })
       console.log('Browse:  LIKE! id:', this.userIdx, this.users.length)
+      
       var el = document.getElementsByClassName("fly-out")[0];
       console.log('Browse:  LIKE.el:', el)
       this.drageVals.dragStatus = 'afterLikeEvent';
   },
     viewMatches() {
-      console.log('Browse: clicked on "VEIW MATCHES"')
+      console.log('Browse: clicked on "VIEW MATCHES"')
       this.newMatchFlag = false;
-      this.moveToMatches();
+      // var that  = this;
+          this.moveToMatches();
     },
     closePopup() {
       console.log('Browse: clicked on "CLOSE POPUP"')
@@ -417,9 +439,9 @@ export default {
       position: absolute;
       top:20px;
       z-index: 5;
-      font-size:2em;
-      padding:0.2em;
-      border-radius: 5px;
+      font-size:3em;
+      padding:0.3em;
+      border-radius: 7px;
 }
 .v-like{
   color:green;
@@ -447,7 +469,7 @@ export default {
     overflow: hidden;
     justify-content: center;
     align-items: center;
-    height: 70vh;
+    height: 75vh;
 }
 .flex-center{
     display: flex;
@@ -462,11 +484,20 @@ export default {
 .user-details {
     position: relative;
     white-space: nowrap;
-    overflow: hidden;
+    width:100%;
+    font-size:1.5em;
+    // overflow: hidden;
     text-overflow: clip ellipsis;
-    z-index: 0;
-    background-color: gray;
-    height:4em;
+    z-index: 6;
+    background-color: #c4a6a6;
+    height:3em;
+    cursor: pointer;
+    box-shadow:0 0 15px gray;
+    padding-top:1em;
+    // outline: 1px solid red;
+    h4{
+      margin-top:0;
+    }
   }
 
 .actions {
@@ -475,6 +506,7 @@ export default {
     top: 0.5em;
     right: 2em;
     bottom: 1em;
+    left:2em;
   }
   display: flex;
   justify-content: space-between;
@@ -505,16 +537,21 @@ export default {
     // background: lightgrey;
     position: absolute;
     top:10%;
-    width: 90%;
+    width: 85%;
     height: 70%;
     // margin:auto;
 }
  .next-user{
-  // opacity:0.8;
-  // z-index: -1;
+  box-shadow:0 0 15px gray;
+  z-index: 0;
   // background-color: green;
 }
+.img-container:active {
+      cursor: -webkit-grabbing; 
+      // cursor:-moz-grabbing;
+  }
 .img-container {
+  cursor: -webkit-grab;
   margin:auto;
   // width: 20em;
   height: 100%;
@@ -527,6 +564,9 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin:auto;
+  z-index: 1;
+  box-shadow:0 0 15px gray;
 .photo-txt{
   font-size: 1em;
   color:red;
@@ -536,7 +576,8 @@ export default {
     margin: auto;
     min-height: 100%;
     // min-width: 100%;
-    width:auto;
+    width:100%;
+    overflow-y: hidden;
   //  left: -100%;
  //   right: -100%;
  //   top: -100%;
@@ -569,6 +610,8 @@ export default {
 
 .popup-buttons {
   width: 100%;
+  // position: absolute;
+  // bottom:10vh;
   .button {
     font-family: 'Kurale', Helvetica, Arial, sans-serif;
     text-transform: uppercase;
@@ -576,19 +619,13 @@ export default {
   }
 }
 
-.description {
-  background: rgba(252, 217, 217, 1);
-  position: absolute;
-  display: block;
-  width: 100%;
-  bottom: 0;
-}
 
 .expand {
   cursor: pointer;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active{
+// .fade-enter-active{
   transition: opacity .5s
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
@@ -596,6 +633,49 @@ export default {
 }
 .el-hide{
   visibility:hidden;
+}
+.description {
+  background: rgba(252, 217, 217, 1);
+  position: absolute;
+  display: block;
+  width: 100%;
+  bottom: 0;
+  height:100%;
+  z-index: 5;
+  font-size:1.5em;
+  box-shadow:0 0 15px gray;
+  opacity:0.8;
+  // outline: 1px solid red;
+    overflow:hidden;
+
+}
+
+.slide-fade-enter-active {
+  transition: all .5s ease;
+    // height:100%;
+// opacity:0;
+}
+.slide-fade-leave-active {
+  transition: all .8s ;
+}
+.slide-fade-enter, .slide-fade-leave-to{
+  // transform: translateY(-7em);  
+  height:0;
+  overflow:hidden;
+}
+
+.slide-fade-down-enter-active {
+  transition: all .5s ease;
+    height:0;
+}
+.slide-fade-down-leave-active {
+    height:0;
+  transition: all .8s ;
+}
+
+
+* {
+  // outline: 1px solid red;
 }
 </style>
  
