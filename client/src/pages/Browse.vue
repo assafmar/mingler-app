@@ -27,7 +27,8 @@
        
        <!--//===========================================:user='currUser'=======-->
        <transition name="fade">
-        <div id="curr-user-frame" v-if="drageVals.showUser "   class="img-frame curr-user" >
+        <div id="curr-user-frame" v-if="drageVals.showUser "
+          class="img-frame curr-user" ref="currUserCard" >
               
                
                 <div class="img-container"
@@ -148,13 +149,14 @@ export default {
     // this.users = this.$store.getters.fetchUsersBrowsed;
     // this.drageVals.frameEl =  document.getElementById("curr-user-frame");
     // this.drageVals.parentEl =  document.getElementById("browse-div");
-
+        console.log(this.$refs, '000000000000000000')
+        // this.width = this.$refs.card.offsetWidth;
     // this.pushUsers();
     var that = this;
       setTimeout(function() {
         that.drageVals.frameEl =  document.getElementById("curr-user-frame");
         that.drageVals.parentEl =  document.getElementById("browse-div");
-        that.initEl()
+        that.initEl('mounted.frameEl', that.drageVals.frameEl)
         that.pushUsers();
       }, 50);
   },
@@ -175,6 +177,13 @@ export default {
 
       return users11;
     },
+    ready: function () {
+      window.addEventListener('resize', this.initEl);
+      this.initEl('ready');
+    },
+    beforeDestroy: function () {
+      window.removeEventListener('resize', this.initEl)
+    },
     user() {
       return this.currUser;
     },
@@ -191,7 +200,11 @@ export default {
         console.log('rrrrrrrrrrrrrrrrrrrrrrrr')
     },
     vClass() { 
-      var txt = (Math.abs(this.drageVals.xPercent ==0 ))? '': 'v-like-action'
+      
+     if (this.drageVals.xPercent ==0 ){
+          this.drageVals.msg   ='';
+          return;
+     }
       var str =  (this.drageVals.xPercent >0) ?  'v-like-action v-like' :  'v-like-action v-dislike';
         console.log('vClass',str )
       return str
@@ -207,7 +220,7 @@ export default {
     dragModeTrue(e){
         console.log('dragModeTrue.drageVals.dragStatus1', this.drageVals.dragStatus )
        e.preventDefault();
-            this.initEl()
+            this.initEl('dragModeTrue')
             
             if (this.drageVals.dragStatus ==='init'){     //only on first round  
                 console.log('dragModeTrue.1.5.e.path[2].offsetTop',e.path[2].offsetTop )
@@ -257,9 +270,9 @@ export default {
             
 
     },
-    initEl(){
+    initEl(msg){
           this.drageVals.frameEl =  document.getElementById("curr-user-frame");
-          console.log('initEl',document.getElementById("curr-user-frame"));
+          console.log('initEl',document.getElementById("curr-user-frame"),'/msg', msg);
           this.drageVals.parentEl =  document.getElementById("browse-div");
           if( this.drageVals.frameEl && !this.drageVals.startX){
               this.drageVals.startX = this.drageVals.frameEl.offsetLeft;
@@ -270,7 +283,7 @@ export default {
     //===================================
     goHome(e){
           console.log( '------------goHome.224', this.drageVals.frameEl );
-            if (!this.drageVals.frameEl)  this.initEl()
+            if (!this.drageVals.frameEl)  this.initEl('goHome')
 
             this.drageVals.frameEl.classList.remove("fly-out")
             // e.path[2].classList.remove("slide-home")
@@ -291,7 +304,7 @@ export default {
           // console.log( '------------flyOut.',e.path[2],this.drageVals.frameEl);
            
            
-           if(!this.drageVals.parentWidth) this.initEl()
+           if(!this.drageVals.parentWidth) this.initEl('flyOut')
            this.drageVals.msg = '';
            var leftStr =this.drageVals.parentWidth +100 +'px'
            var  rotateStr= 30; 
@@ -319,13 +332,13 @@ export default {
     //===================================
     touchMove(e){
           if (this.drageVals.dragStatus ==='clicked'){
-              console.log('touchMove.e' , e);
+              // console.log('touchMove.e' , e);
               this.followMouse(e);
           }
     },
     //===================================
     followMouse(e){
-          console.log('followMouse.e' , e);
+          // console.log('followMouse.e' , e);
         
         var vals = this.drageVals;
         // var el = e.target;
@@ -343,13 +356,15 @@ export default {
           var els = document.getElementsByClassName("v-like-action")[0];
           if(els) els.style.opacity  =vals.opacity;
           
-          console.log('vals.e.changedTouches[0].clientX :',vals.xPercent)
+          // console.log('vals.e.changedTouches[0].clientX :',vals.xPercent)
             vals.msg = (vals.xPercent >0)? 'Like':'Dislike';
+          
+          
           vals.rotate =70 * vals.xPercent
           vals.frameEl.style.transform  =`rotate(${  vals.rotate}deg)`;
           // e.path[2].style.opacity  =vals.opacity;
         
-        console.log('followMouse.msg', vals.msg, vals.xPercent );
+        // console.log('followMouse.msg', vals.msg, vals.xPercent );
           if(Math.abs(vals.xPercent) >0.3){
               if(vals.xPercent >0){
                   this.flyOut(e,'right');
@@ -376,12 +391,20 @@ export default {
       this.$router.push('Edit')
     },
     launchLikeAction(e,direction){
-      this.initEl()
-  // dragModeTrue(e)
-      // this.dragModeTrue(e)
-      this.flyOut(e,direction);
-      this.drageVals.dragStatus = 'clicked';
-      (direction === 'left')? this.userDislike(e):this.userLike(e);
+      if ( this.expand){
+          this.expand =false;
+          var that = this;
+          setTimeout(function() {
+            that.flyOut(e,direction);
+            (direction === 'left')? that.userDislike(e):that.userLike(e);
+          }, 700);
+      
+    }else{
+          this.initEl('launchLikeAction');
+          this.flyOut(e,direction);
+          this.drageVals.dragStatus = 'clicked';
+          (direction === 'left')? this.userDislike(e):this.userLike(e);
+    }
     },
     userDislike(e) {
       if(this.drageVals.dragStatus != 'clicked') return;
@@ -432,6 +455,7 @@ export default {
       font-size:3em;
       padding:0.3em;
       border-radius: 7px;
+      opacity:0;
 }
 .v-like{
   color:green;
@@ -532,6 +556,7 @@ export default {
     // margin:auto;
 }
  .next-user{
+ 
   box-shadow:0 0 15px gray;
   z-index: 0;
   // background-color: green;
