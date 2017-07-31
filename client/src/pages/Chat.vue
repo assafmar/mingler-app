@@ -1,4 +1,5 @@
 <template>
+  <transition name="fade">
   <section>
     <div class="page" v-if="currUser">
       <div class="marvel-device nexus5">
@@ -105,11 +106,14 @@
  
 
   </section>
+</transition>
 </template>
 
 <script>
 import msgService from '../services/msg.service';
 import moment from "moment";
+import { GET_MATCHED } from '../store/store'
+
 // import $ from "jquery";
 
 export default {
@@ -135,32 +139,28 @@ export default {
     this.chatUser = this.$store.getters.fetchChatUser;
     this.msgs = msgService.getMsgs();
     this.getOurHistory() ;
+    this.$store.dispatch({ type: GET_MATCHED });
+    this.scrollToBottom();
 
   },
+    watch: {
+    msgs: function (newMsgs) {
+      console.log('CHAT.watch-msgs');
+      this.scrollToBottom();
+
+    }
+  },
+
   computed:{
       msgs() {
           var msgs = msgService.getMsgs();
           return msgs;
       },
-          //msgs = msgs.filter((msg)=>{return (msg.from== this.currUser)&&(msg.to== this.chatUser)})
-          // var newReadMsgs = [];
-          // msgs.map((msg)=>{   //marking all unread msgs ass read
-          //    if (msg.from ===this.chatUser && msg.status !='read'){
-          //       msg.status= 'read';
-          //       newReadMsgs.push(msg.id);
-          //    }
-          //     return msg;
-          // })
-          // (isNewMsgs.length>0)? markMsgsAsRead(newReadMsgs):true;   //=> activate only if there is unread msgs.
-          // console.log('chat.computed.msgs:markMsgsAsRead');
-
-          //  this.markMsgsAsRead(newReadMsgs); 
-      // },
       currUser() {
           return this.$store.getters.fetchCurrUser;
       },
       chatUser() {
-          console.log('oooooooooooooooooooooochat.computed.chatUser:', this.$store.getters.fetchChatUser.id);
+          console.log('chat.computed.chatUser:', this.$store.getters.fetchChatUser.id);
           var chatUser = this.$store.getters.fetchChatUser;
           if (typeof chatUser === 'undefined')moveToBrowse();
           return chatUser;
@@ -170,6 +170,16 @@ export default {
       this.userIsMovingOutOfChat(this.currUser);
   },
   methods: {
+      scrollToBottom(){
+          var that = this;
+          setTimeout(function() {
+              var container =  document.getElementsByClassName("conversation-container")[0];
+              console.log('scrolllllll');
+              container.scrollTop = container.scrollHeight;
+          }, 300);
+
+      },
+
     // markMsgsAsRead(msgs){
     //     var msg = Object.assign({}, this.newMsg);
     //     msg.type1= 'markMsgsAsRead';
@@ -241,8 +251,9 @@ export default {
         msg.atFormated= moment(msg.at).format('HH:mm');
 
       msgService.send(msg);
-      this.newMsg = this.createEmptyMsg();
-    }
+      this.newMsg = this.createEmptyMsg();    
+      this.scrollToBottom()
+        }
   }
 
 }
@@ -399,17 +410,19 @@ img{
 
 .user-bar .avatar {
   margin: 0 0 0 5px;
-  width: 36px;
+  width:36px;
   height: 36px;
-}
-
-.user-bar .avatar img {
   border-radius: 50%;
+  overflow:hidden;
+  display:flex;
+    justify-content: center;
+
+  
+}
+.user-bar .avatar img {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
-  display: block;
- /*width: 100%;*/
-  min-height: 100%;
-  width: auto;
+  height: 100%;
+  max-width: none;
 }
 
 .user-bar .name {
@@ -687,7 +700,7 @@ img{
 
 /* Small Screens */
 
-@media (max-width: 768px) {
+/*@media (max-width: 768px) {*/
   .marvel-device.nexus5 {
     /*border-radius: 0;
     flex: none;
@@ -709,7 +722,6 @@ img{
   .marvel-device .status-bar {
     display: none;
   }
-  .userMe{}
   .screen-container {
     position: absolute;
     top: 0;
@@ -724,6 +736,16 @@ img{
   .conversation .conversation-container {
     height: calc(100vh - 200px);
   }
+/*}*/
+
+
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 1s
+}
+
+.fade-enter,.fade-leave-to{
+  opacity: 0
 }
 
 </style>

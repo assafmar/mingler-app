@@ -5,8 +5,7 @@
   v-if="users" class="users-match-screen">
     <div md-gutter class="phone-viewport users-list" id="users-list">
       <md-list class="custom-list md-double-line" v-for="user in users" :key="user.id" @click="openChat(user.id)">
-        
-        <md-list-item transition="expand" class="user-photo single-match">
+        <md-list-item class="user-photo single-match">
           <md-avatar class="photo-frame">
             <div class="img-container">
             <img v-if="user.photos" class="matchImg" :src="user.photos[0]">
@@ -144,9 +143,6 @@ a:hover {
     border: none;
   };
 }
-.md-list-text-container  {
-  width:40%;
-}
 .md-list-text-container span {
   font-size: 1.3em;
 } 
@@ -161,19 +157,4 @@ a:hover {
   opacity: 0
 }
 
-//==================================
-.expand-transition {
-  transition: all .3s ease;
-  height: 30px;
-  padding: 10px;
-  background-color: #eee;
-  overflow: hidden;
-}
-/* .expand-enter defines the starting state for entering */
-/* .expand-leave defines the ending state for leaving */
-.expand-enter, .expand-leave {
-  height: 0;
-  padding: 0 10px;
-  opacity: 0;
-}
 </style>

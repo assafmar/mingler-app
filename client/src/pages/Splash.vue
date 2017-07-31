@@ -1,4 +1,6 @@
 <template>
+  <transition name="fade">
+
   <section>
     <!--<h1> SPLASH SCREEN </h1>
     <h2> need to check if loggedin and move to login screen </h2>-->
@@ -7,6 +9,8 @@
     <img class="splash-image" src="../assets/splash.jpg">
     </div>
   </section>
+  </transition>
+
 </template>
 
 
@@ -107,4 +111,13 @@ a {
   display: flex;
   flex-direction: column;
 }
+.fade-enter-active {
+    transition: opacity 3s
+}
+
+.fade-enter,.fade-leave-to{
+  opacity: 0
+}
+
+
 </style>

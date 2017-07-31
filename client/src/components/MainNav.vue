@@ -1,11 +1,26 @@
 <template>
   <div>
     <el-row>
-      <el-col class="grid-content " :lg="{span: 2, offset: 1}" :md="{span: 2, offset: 1}" :sm="{span: 2, offset: 1}" :xs="{span: 2, offset: 1}">
-        <router-link to="/edit" class="edit-btn">
-          <img src="../assets/settings.png"> </router-link>
-        <div v-if="this.currUser" class="registered-user">{{this.currUser.name}}</div>
-      </el-col>
+      <div v-if="currUser">
+          <el-col class="grid-content " :lg="{span: 2, offset: 1}" :md="{span: 2, offset: 1}" :sm="{span: 2, offset: 1}" :xs="{span: 2, offset: 1}">
+            <router-link to="/edit" class="edit-btn">
+              <img src="../assets/settings.png"> </router-link>
+            <div v-if="this.currUser" class="registered-user">{{this.currUser.name}}</div>
+          </el-col>
+      </div>
+      <div v-else>
+          <el-col class="grid-content edit-btn  opacity08" :lg="{span: 2, offset: 1}" :md="{span: 2, offset: 1}" :sm="{span: 2, offset: 1}" :xs="{span: 2, offset: 1}">
+            <!--<router-link to="/edit" class="edit-btn">-->
+              <img src="../assets/settings.png"> 
+              <!--</router-link>-->
+            <!--<div v-if="this.currUser" class="registered-user">{{this.currUser.name}}</div>-->
+          </el-col>
+      </div>
+      
+      
+      
+      
+      
       <el-col class="grid-content " :lg="{span: 6, offset: 6}" :md="{span: 6, offset: 6}" :sm="{span: 6, offset: 6}" :xs="{span: 8, offset: 5}">
         <!--<router-link to="/browse">-->
           <h2 class="logo">
@@ -15,34 +30,45 @@
       </el-col>
   
       <el-col class="grid-content match-btn" :lg="{span: 2, offset: 6}" :md="{span: 2, offset: 6}" :sm="{span: 2, offset: 6}" :xs="{span: 2, offset: 5}">
-  
-        <div v-if="!isBrowseScreen" @click="navigate">
-          <router-link to="/browse">
-            <div class="icon-container">
-              <div class="image-container">
-                <img src="../assets/browse.png">
-                <div class="image-badge-container">
-                  <el-badge :value="unreadCount" class="item image-badge"> </el-badge>
+      <div v-if="currUser">
+            <div v-if="!isBrowseScreen" @click="navigate">
+              <router-link to="/browse">
+                <div class="icon-container">
+                  <div class="image-container">
+                    <img src="../assets/browse.png">
+                    <div class="image-badge-container">
+                      <el-badge :value="unreadCount" class="item image-badge"> </el-badge>
+                    </div>
+                    </img>
+                  </div>
                 </div>
-                </img>
-              </div>
+              </router-link>
             </div>
-          </router-link>
-        </div>
-        <div v-else @click="navigate" class="nav-back">
-  
-          <router-link to="/matches">
-            <div class="icon-container">
-              <div class="image-container">
-                <img src="../assets/matched.png">
-                <div class="image-badge-container">
-                  <el-badge :value="unreadCount" class="item image-badge"> </el-badge>
+            <div v-else @click="navigate" class="nav-back">
+      
+              <router-link to="/matches">
+                <div class="icon-container">
+                  <div class="image-container">
+                    <img src="../assets/matched.png">
+                    <div class="image-badge-container">
+                      <el-badge :value="unreadCount" class="item image-badge"> </el-badge>
+                    </div>
+                    </img>
+                  </div>
                 </div>
-                </img>
-              </div>
+              </router-link>
             </div>
-          </router-link>
         </div>
+      <div v-else>
+                <div class="icon-container opacity08">
+                  <div class="image-container">
+                    <img src="../assets/browse.png">
+                    </img>
+                  </div>
+                </div>
+      </div>
+
+
       </el-col>
   
     </el-row>
@@ -85,9 +111,9 @@ export default {
 <style scoped lang="scss">
 .image-badge-container {
   position: absolute; //background-color: blue;
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start; //z-index: 5;
+  // display: flex;
+  // justify-content: flex-end;
+  // align-items: flex-start; //z-index: 5;
 }
 
 .image-badge {}
@@ -131,6 +157,10 @@ export default {
     // z-index: 1;
     // display: flex;
   }
+}
+.opacity08{
+  opacity: 0.5;
+  transition: 0.8 all;
 }
 </style>
 -

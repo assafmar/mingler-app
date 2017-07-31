@@ -163,6 +163,10 @@ const mutations = {
     console.log('TBD - implement login via action')
     //commit({ type: LOG_IN, user:user }) 
     state.currUser = data.user;
+      var myJSON = JSON.stringify(state.currUser);
+      localStorage.currUser = myJSON;
+
+
     state.loginStatus = true;
     //    console.log('store.mutation.ADD_USER --> LOG_IN:' ,state.loginStatus)
   },

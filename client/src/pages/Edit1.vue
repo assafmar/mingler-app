@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade">
+  <!--TODO - REQUIRED FIELDS-->
   
   <section class="user-zone">
     <div v-if="currUser" class="edit-header">
@@ -77,7 +77,6 @@
       </el-form-item>
     </el-form>
   </section>
-  </transition>
 </template>
 
 <script>
@@ -114,8 +113,7 @@ export default {
 
   created() {
 
-    var currUserInit1 = this.$store.getters.fetchCurrUser;
-    var currUserInit = this.cloneDeep(currUserInit1)
+    var currUserInit = this.$store.getters.fetchCurrUser;
     console.log('Edit - created - currUserInit:', currUserInit)
     if (currUserInit) this.user = currUserInit;
   },
@@ -354,13 +352,5 @@ a:hover {
   height: 178px;
   display: block;
 }
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 1s
-}
-
-.fade-enter,.fade-leave-to{
-  opacity: 0
-}
-
 </style>
 

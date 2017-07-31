@@ -1,5 +1,10 @@
 <template>
+  <transition name="fade">
+
  <section>
+  <div class="edit-header">
+      <h2>Login</h2>
+  </div>
  <el-form ref="form" class="form-login"  label-position="top">
       <el-form-item label="Username">
         <el-row>
@@ -24,6 +29,8 @@
     </section>
 
   </section>
+  </transition>
+
 </template>
 
 <script>
@@ -89,4 +96,19 @@ export default {
 .warning-message{
 color: red;
 }
+.edit-header {
+  display: flex;
+  justify-content: flex-start;
+  width: 90%;
+  margin: auto;
+}
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .8s
+}
+
+.fade-enter,.fade-leave-to{
+  opacity: 0
+}
+
+
 </style>
