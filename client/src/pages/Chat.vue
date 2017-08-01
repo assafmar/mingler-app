@@ -173,13 +173,17 @@ export default {
       scrollToBottom(){
           var that = this;
           setTimeout(function() {
+              
+              // while (container.scrollTop < container.scrollHeight) {
+              //       text += "The number is " + i;
+              //       i++;
+              //   }
+              
               var container =  document.getElementsByClassName("conversation-container")[0];
-              console.log('scrolllllll');
               container.scrollTop = container.scrollHeight;
           }, 300);
 
       },
-
     // markMsgsAsRead(msgs){
     //     var msg = Object.assign({}, this.newMsg);
     //     msg.type1= 'markMsgsAsRead';
@@ -232,8 +236,8 @@ export default {
     typing() {
       var msg = {txt: '', processed: false, from: this.currUser.id,fromName:this.currUser.name, 
                   to:this.chatUser.id ,toName:this.chatUser.name, type1: 'typing'};
-      // console.log('typing:' ,obj);
-      // msgService.send(msg);
+      console.log('typing:' ,msg);
+      msgService.send(msg);
     },
  //==========================
     initUser() {
@@ -246,8 +250,9 @@ export default {
     },
  //==========================
     send() {
-      console.log('chat send:', this.newMsg);
         var msg = this.newMsg
+      if(!msg.txt || msg.txt ==='') return;
+      console.log('chat send:', this.newMsg);
         msg.atFormated= moment(msg.at).format('HH:mm');
 
       msgService.send(msg);

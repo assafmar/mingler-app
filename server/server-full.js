@@ -539,10 +539,9 @@ io.on('connection', function (socket) {
 			// 		// console.log('chat.js/sendMsgToAll: ' + msg);
 			// 	sendAll('msg received', msg);
 			// 	break;
-			// case 'ilan':
-			// 		console.log('chat.js/ilan: ' + msg);
-			// 	ilan('msg received', msg);
-			// 	break;
+			case 'ilan':
+				ilan('msg received', msg);
+			break;
 			// case 'UserReadAllMsgs'://
 			// 		console.log('chat./UserReadAllMsgs: ' + msg);
 			// 	UserReadAllMsgs(msg);
